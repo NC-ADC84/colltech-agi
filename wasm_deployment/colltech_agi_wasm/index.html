@@ -1,0 +1,59 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CollTech-AGI Advanced</title>
+    <meta charset="utf-8">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .info { background-color: #d1ecf1; color: #0c5460; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 CollTech-AGI Advanced</h1>
+        <div id="status" class="status info">Initializing WebAssembly runtime...</div>
+        <div id="output"></div>
+        <input type="text" id="input" placeholder="Enter your message..." style="width: 100%; padding: 10px; margin: 10px 0;">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+    
+    <script>
+        let wasmModule = null;
+        
+        async function initWasm() {
+            try {
+                const wasmResponse = await fetch('colltech_agi.wasm');
+                const wasmBytes = await wasmResponse.arrayBuffer();
+                wasmModule = await WebAssembly.instantiate(wasmBytes);
+                document.getElementById('status').innerHTML = '<div class="status success">✅ CollTech-AGI Advanced loaded successfully!</div>';
+            } catch (error) {
+                document.getElementById('status').innerHTML = '<div class="status error">❌ Failed to load WebAssembly: ' + error + '</div>';
+            }
+        }
+        
+        function sendMessage() {
+            const input = document.getElementById('input');
+            const message = input.value;
+            if (message && wasmModule) {
+                // Process message through WASM
+                document.getElementById('output').innerHTML += '<div><strong>You:</strong> ' + message + '</div>';
+                document.getElementById('output').innerHTML += '<div><strong>CollTech-AGI:</strong> Processing through WebAssembly...</div>';
+                input.value = '';
+            }
+        }
+        
+        document.getElementById('input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+        
+        initWasm();
+    </script>
+</body>
+</html>

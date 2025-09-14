@@ -1,0 +1,6 @@
+{
+  "compression_level": 6,
+  "max_size_gb": 10,
+  "auto_cleanup": true,
+  "encryption_enabled": true
+}

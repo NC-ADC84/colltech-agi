@@ -1,0 +1,16 @@
+#!/bin/bash
+# CollTech-AGI API Binary Wrapper
+# Architecture: x86_64
+
+export PYTHONPATH="/opt/colltech-agi/lib:$PYTHONPATH"
+export COLLTECH_HOME="/opt/colltech-agi"
+export COLLTECH_ARCH="x86_64"
+
+# Load configuration
+if [ -f "$COLLTECH_HOME/etc/hardware.conf" ]; then
+    source "$COLLTECH_HOME/etc/hardware.conf"
+fi
+
+# Start API server
+cd "$COLLTECH_HOME"
+exec python3 -m uvicorn colltech_agi_realtime_advanced:app --host 0.0.0.0 --port 8000

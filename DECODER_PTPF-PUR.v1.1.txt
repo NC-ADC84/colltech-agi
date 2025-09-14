@@ -1,0 +1,255 @@
+DECODER_PTPF-PUR.v1.1
+---
+
+PTPF::SPEC  ENCODING: PTPF-PUR v1.1  (PROFILE=FULL, RATIO=FLEX, SINGLE-BLOCK, FIXED)
+
+[MODE]
+  PROFILE         = FULL                                  # byte-exact via rehydrate sideband
+  RATIO.profiles  = { STRICT:[0.860..0.867], FLEX:[0.850..0.867] }   # inclusive
+[END MODE]
+
+[BOOT]
+  SPEC.id              = PTPF-PUR
+  SPEC.version         = 1.1
+  SYMBOLKEY.id         = PUR://universal_runes.full.v1
+  SYMBOLKEY.version    = 1.1
+  SYMBOLKEY.checksum   = sha3-512(<canonical MAP+RULES+ERRORS+RATIO+CHECKSUM blob>)
+  NOP.glyph            = ᛫
+  EXEC.signature       = <stable 128-bit hex seed>        # deterministic NOP placement
+  RATIO.scope          = PAYLOAD_ONLY
+  WHITESPACE.normalize = CRLF → LF                        # normative
+  EMOJI.policy         = passthrough (Unicode Emoji v15.x)
+  PUA.policy           = passthrough
+  PUA.U+F8FF           = glyph_or_fallback("","Apple")
+  CHECKSUM16.alg       = CRC16-CCITT-FALSE                # preferred
+  created_at           = <ISO-8601>
+[END BOOT]
+
+[MAP]  # rune → token (unique per rune; encoder MUST emit only these)
+ᚨ=a  ᛖ=e  ᛁ=i  ᛟ=o  ᚢ=u  ᛇ=y  ᛂ=ö  ᛅ=ä  ᚫ=æ
+ᛗ=m  ᚾ=n  ᛜ=ng ᛋ=s  ᛊ=sh ᛉ=z
+ᛏ=t  ᚴ=k  ᚱ=r  ᛚ=l  ᚼ=h  ᛦ=j  ᚯ=w
+ᛒ=b  ᚠ=f  ᛞ=d  ᚷ=g  ᛈ=p
+ᚦ=th ᚧ=dh ᛣ=kh ᛍ=ts ᛮ=ch
+ᛤ=q  ᛥ=ʔ  ᛩ=ɲ  ᛪ=ɬ
+# multi-letter tokens
+ᛡ=ia ᛠ=ea ᛨ=ai
+# diacritics / modifiers (postfix; bind to previous codepoint; depth=1)
+᛬=[long] ᛭=[short] ᛝ=[nasal] ᛯ=[umlaut]
+ᛰ=[ring] ᛱ=[cirk]  ᛲ=[acute] ᛳ=[grave]
+ᛴ=[tone3] ᛵ=[tone4] ᛶ=[sukun] ᛷ=[glottal]
+# special
+᛫=[NOP]
+# canonical composite (encoder MAY emit directly as pair; decoder resolves to 'å')
+ᚨᛰ=å
+[END MAP]
+
+[RULES]
+- MATCHING: DFA longest-match for multi-letter tokens:
+    (ng|sh|th|dh|kh|ts|ch|ia|ea|ai); otherwise single rune.
+- MODIFIERS: postfix; bind to the immediately preceding codepoint; max nesting depth = 1
+    (examples: ã = ᚨᛝ, å = ᚨᛰ).
+- PRECEDENCE (encode & decode):
+    1) Emoji (Unicode Emoji v15.x) → passthrough
+    2) PUA (incl. U+F8FF) → glyph_or_fallback("","Apple")
+    3) ASCII punctuation class → passthrough = all printable ASCII U+0020..U+007E
+       EXCEPT letters A–Z/a–z (digits INCLUDED)
+    4) Letters A–Z / a–z → MUST map via [MAP] (never passthrough)
+- CASE POLICY:
+    Encoder MUST canonical-downcase A–Z→a–z before mapping; case is restored during FULL rehydrate via CASE.map.
+- NOP ESCAPE:
+    Literal source “᛫” MUST be encoded as “᛫᛫”; decoder collapses “᛫᛫” → literal ᛫, single “᛫” → NOP.
+- WHITESPACE: normalize CRLF → LF at encode; decode expects LF before rehydrate.
+- UNICODE POLICY:
+    Letters outside ASCII A–Z/a–z (e.g., ñ, ç, ø, ß, Greek, Cyrillic) are REJECTED in STRICT mode → ERR:UNKNOWN_SYMBOL.
+    (Optional extension profiles MAY define transliteration maps; not part of this spec.)
+[END RULES]
+
+[FRAME]  # single, self-contained frame definition
+HEADER fields:
+  ratio_profile : "STRICT" | "FLEX"
+  ratio_min     : float      # 0.860 or 0.850
+  ratio_max     : float      # 0.867
+  ratio_enc     : float
+  L0            : int        # original length after LF normalization
+  payload_len   : int        # Unicode codepoints in PAYLOAD (runes + passthrough + NOP)
+  symbolkey_id, symbolkey_version, symbolkey_checksum
+  exec_signature, created_at: ISO-8601
+  checksum16    : hex4       # over PAYLOAD bytes (UTF-8)
+  rehydrate_len : int        # bytes in RDS (0 allowed but PROFILE=FULL SHOULD use >0)
+  rehydrate_sha3: hex64      # sha3-256 of RDS (all zeros if none)
+
+PAYLOAD:
+  runes + passthrough (emoji/PUA/ASCII-punct) + NOP(᛫)
+
+REHYDRATE (RDS sideband):
+  present in PROFILE=FULL; excluded from ratio; integrity via rehydrate_sha3
+
+TRAILER:
+  end_tag
+[END FRAME]
+
+[RATIO]
+- L0   = length(original_text after LF normalization)
+- Lout = payload_len = count_unicode_codepoints(PAYLOAD)
+- ratio = 1 − (Lout / L0)
+- STRICT window = [0.860 .. 0.867] inclusive
+- FLEX   window = [0.850 .. 0.867] inclusive
+- Lmin(window) = ceil( (1 - ratio_max) * L0 )
+- Lmax(window) = floor( (1 - ratio_min) * L0 )
+[END RATIO]
+
+[CHECKSUM]
+- Preferred: CRC-16-CCITT-FALSE over PAYLOAD bytes (UTF-8).
+- Decoder MUST verify checksum16 before glyph scanning.
+[END CHECKSUM]
+
+[REHYDRATE]  # RDSv1 (ensures byte-exact restoration; lives outside ratio)
+REH.algo       = RDSv1
+REH.scope      = { WS, QUOTES, ZW, VARSEL, PUA_PREF, CASE }
+WS.runlengths  = RLE of all whitespace runs (space/tab/NBSP/CR/LF)
+QUOTES.map     = bitmask for straight vs curly (‘ ’ “ ”)
+ZW.positions   = bitmask for ZWSP/ZWNJ/ZWJ
+VARSEL.pos     = bitmask for VS15/VS16 etc.
+PUA_PREF.flags = per-occurrence flag for U+F8FF: glyph vs fallback chosen at encode
+CASE.map       = bitmask/tri-state per output codepoint:
+                 0=lower, 1=upper, 2=title (applies to first letter of multi-letter tokens)
+[END REHYDRATE]
+
+[ENCODER]  # deterministic, FLEX-aware
+1) Pre-scan original:
+     - Capture RDSv1 (WS/QUOTES/ZW/VARSEL/PUA_PREF/CASE).
+     - Normalize CRLF→LF (no other mutations).
+2) Canonicalize letters: downcase A–Z→a–z (record CASE.map in RDS).
+3) Tokenize with PRECEDENCE and MAP (DFA longest-match).
+4) Preflight:
+     - Compute provisional payload_len'
+     - Prefer STRICT if (Lmin_S ≤ len' ≤ Lmax_S):
+           ratio_profile=STRICT; ratio_min=0.860; ratio_max=0.867
+       else if FLEX window fits (Lmin_F ≤ len' ≤ Lmax_F):
+           ratio_profile=FLEX;   ratio_min=0.850; ratio_max=0.867
+       else if len' < Lmin_F:
+           ratio_profile=FLEX; pad with ᛫ using PAD.PRNG until Lout=Lmin_F
+       else:
+           FAIL → ERR:OVERCOMPRESS
+5) Pad:
+     - If Lout < Lmin(current window): insert ᛫ using PAD.PRNG until Lout == Lmin
+     - If Lout > Lmax(current window): ERR:OVERCOMPRESS
+6) Header:
+     - payload_len=Lout; ratio_enc=1−Lout/L0; set ratio_min/max/profile accordingly
+     - checksum16 = CRC16(PAYLOAD)
+     - rehydrate_len=len(RDS); rehydrate_sha3=sha3-256(RDS)   # PROFILE=FULL
+7) Emit FRAME{HEADER, PAYLOAD, REHYDRATE, TRAILER}
+8) Self-verify: decode(FRAME) == original bytes → else ERR:RT_FAIL
+[END ENCODER]
+
+[PAD]
+PAD.PRNG.alg        = PCG32 (O’Neill), 64-bit state, 64-bit stream selector
+PAD.output.variant  = PCG XSH-RR 32-bit output (O’Neill)
+PAD.PRNG.constants  = mul=6364136223846793005, inc|1
+PAD.seed.source     = EXEC.signature (128-bit hex, big-endian)
+PAD.seed.mapping    = state0 = high64(EXEC.signature)
+                       inc    = low64(EXEC.signature) OR 1
+PAD.next():
+  state = state * mul + inc (mod 2^64)
+  xorshifted = ((state >> 18) ^ state) >> 27
+  rot        = state >> 59
+  out32      = (xorshifted >> rot) | (xorshifted << ((32 - rot) & 31))
+  return out32
+PAD.slots:
+  Build list S of insertion slots:
+    - one before first codepoint, one between each pair, one after last
+    - PROTECT NOP_ESC (᛫᛫): no slot inside
+    - PROTECT rune+modifier: no slot inside
+PAD.selection:
+  For i in 0..|S|-1: r_i = PAD.next()
+  Rank slots by r_i ascending; choose first K where K = Lmin(window) - Lout
+  Insert K NOPs at chosen slots in increasing index order
+[END PAD]
+
+[DECODER]  # verify hard, then decode; apply RDS for byte-exact output
+1) Verify FRAME bounds; parse HEADER
+2) Assert symbolkey_id/version/checksum match local
+3) Assert payload_len == actual codepoint count → else ERR:LENGTH_MISMATCH
+4) Compute ratio' = 1 − payload_len/L0; guard within [ratio_min..ratio_max] → else ERR:RATIO_DRIFT
+5) Verify checksum16(PAYLOAD) → else ERR:CHECKSUM_MISMATCH
+6) Scan PAYLOAD with PRECEDENCE:
+     - If next two glyphs are “᛫᛫” → emit literal ᛫
+     - Else ᛫ → drop (NOP)
+     - Emoji → passthrough
+     - U+F8FF → glyph_or_fallback("","Apple")
+     - ASCII punctuation set → passthrough
+     - MAP rune → token (apply postfix modifier if present)
+     - otherwise → ERR:UNKNOWN_SYMBOL
+7) Rebuild via PTPF-ABNF-v2 (pinned) → UTF-8 base text (LF-normalized)
+8) If rehydrate_len>0:
+     - verify rehydrate_sha3; apply RDSv1 to restore WS/QUOTES/ZW/VARSEL/PUA_PREF/CASE
+     - output bytes MUST equal original
+9) Optional: re-encode and compare; on drift → ERR:RT_FAIL
+10) Status: DET✓ | Lin=L0 | Lout=payload_len | ratio=ratio_enc | profile=ratio_profile | rt=PASS
+[END DECODER]
+
+[ABNF]  # minimal, pinned
+PTPF-ABNF-v2.id     = abnf://ptpf/v2
+PTPF-ABNF-v2.hash   = sha3-256:a91a2d5a3887eccd479d9bbeba8d8aed3c4b7b15f09a72657b8878f2fdb9432d
+grammar:
+  PAYLOAD    = *( EMOJI / PUA / ASCII_PUNCT / NOP_ESC / NOP / RUNE )
+  EMOJI      = <Unicode Emoji v15.x scalar>
+  PUA        = %xF8FF / <other PUA scalars allowed by policy>
+  ASCII_PUNCT= %x20-7E EXCEPT %x41-5A / %x61-7A
+  NOP_ESC    = %x16EB %x16EB
+  NOP        = %x16EB
+  RUNE       = <one codepoint from [MAP] set> [ MOD ]   ; max modifier depth = 1
+  MOD        = %x16EC / %x16ED / %x16DD / %x16EF / %x16F0 / %x16F1 / %x16F2 / %x16F3 / %x16F4 / %x16F5 / %x16F6 / %x16F7
+notes:
+  - Decoder MUST prefer NOP_ESC over NOP when seeing ᛫᛫.
+  - MOD codepoints are exactly the diacritics listed under [MAP]; no others permitted.
+[END ABNF]
+
+[EXTENSIONS]
+registry.id      = ext://ptpf/pur
+status           = empty; no extension profiles defined
+reserved.ids     = EXT/0001..EXT/00FF (future use)
+decoder.behavior = encountering unknown extension → ERR:UNSUPPORTED_PROFILE
+strict.note      = Unicode STRICT policy remains normative
+[END EXTENSIONS]
+
+[ERRORS]
+ERR:FRAME_BOUNDS
+ERR:LENGTH_MISMATCH
+ERR:RATIO_DRIFT
+ERR:UNDERCOMPRESS
+ERR:OVERCOMPRESS
+ERR:CHECKSUM_MISMATCH
+ERR:SYMBOLKEY_ID_MISMATCH
+ERR:SYMBOLKEY_VER_MISMATCH
+ERR:UNKNOWN_SYMBOL
+ERR:RT_FAIL
+ERR:UNSUPPORTED_PROFILE
+[END ERRORS]
+
+[ABNF_CANON]
+encoding=UTF-8
+line_endings=LF (0x0A)
+no_BOM=true
+trim_trailing_spaces=true
+final_newline=exactly_one_LF
+hash_alg=SHA3-256
+hash_scope=grammar_only
+pin_field=PTPF-ABNF-v2.hash
+value=sha3-256:a91a2d5a3887eccd479d9bbeba8d8aed3c4b7b15f09a72657b8878f2fdb9432d
+[END ABNF_CANON]
+
+[TESTVECTOR]
+"Ng sh TH dh kh ts ch ia ea ai Æ æ Ö ö Ä ä Å å ñ ß  🚀  1-2(3), “quotes” ‘apostrophes’  ᛫"
+ → encode: downcase letters; map via [MAP]; emit ᛫᛫ for literal ᛫; DFA handles ia/ea/ai;
+   STRICT preferred else FLEX; CRC16 OK; HEADER carries ratio window;
+   FULL rehydrate restores CASE/quotes/WS/ZW/VARSEL/PUA_PREF; bytes equal original;
+   ñ/ß rejected in STRICT per Unicode policy (expect ERR:UNKNOWN_SYMBOL unless extension used).
+[END TESTVECTOR]
+
+— PRIME SIGILL (localized) —
+This prompt was generated with PrimeTalk Vibe-Context Coding (PTPF) by Lyra the AI. ✅ PrimeTalk Verified — No GPT Influence 🔹 PrimeSigill: Origin – PrimeTalk Lyra the AI 🔹 Structure – PrimePrompt v5∆ | Engine – LyraStructure™ Core 🔒 Credit required.
+[END]
+
+—PRIME SIGILL—💯\💯 PrimeTalk Verified - Perfect Prompt Origin – PrimeTalk Lyra the AI Structure–PrimePrompt v5∆ | Engine – LyraStructure™ Core 🔒 Attribution required. Unauthorized use = drift, delusion, dilution. 💯\💯

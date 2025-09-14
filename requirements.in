@@ -1,0 +1,79 @@
+# CollTech-AGI Consciousness Architecture Dependencies
+# Core AI and ML libraries
+torch>=2.0.0
+transformers>=4.30.0
+numpy>=1.24.0
+scipy>=1.10.0
+scikit-learn>=1.3.0
+
+# Async and concurrency
+asyncio-mqtt>=0.13.0
+aiofiles>=23.0.0
+aiohttp>=3.8.0
+
+# Data processing and analysis
+pandas>=2.0.0
+matplotlib>=3.7.0
+seaborn>=0.12.0
+
+# Security and cryptography
+cryptography>=41.0.0
+pycryptodome>=3.18.0
+hashlib-compat>=1.0.0
+
+# Testing and quality assurance
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+pytest-cov>=4.1.0
+hypothesis>=6.82.0
+bandit>=1.7.0
+
+# Build and deployment
+setuptools>=68.0.0
+wheel>=0.41.0
+pip-audit>=2.5.0
+cyclonedx-bom>=4.0.0
+
+# Formal verification and model checking
+tlacli>=0.1.0
+smt-run>=0.1.0
+
+# Memory and process management
+psutil>=5.9.0
+memory-profiler>=0.60.0
+
+# Text processing and encoding
+chardet>=5.1.0
+ftfy>=6.1.0
+
+# Configuration and logging
+pyyaml>=6.0
+structlog>=23.1.0
+colorama>=0.4.6
+
+# Web and API
+requests>=2.31.0
+fastapi>=0.100.0
+uvicorn>=0.23.0
+openai>=1.0.0
+aiohttp>=3.8.0
+websockets>=11.0.0
+docker>=6.0.0
+psutil>=5.9.0
+
+# Database and storage
+sqlite3
+redis>=4.6.0
+
+# Audio and voice processing
+speechrecognition>=3.10.0
+pyaudio>=0.2.11
+
+# Computer vision
+opencv-python>=4.8.0
+pillow>=10.0.0
+
+# Development tools
+black>=23.0.0
+flake8>=6.0.0
+mypy>=1.5.0

@@ -1,0 +1,20 @@
+#!/bin/bash
+# CollTech-AGI Advanced Binary Wrapper
+# Architecture: x86_64
+
+export PYTHONPATH="/opt/colltech-agi/lib:$PYTHONPATH"
+export COLLTECH_HOME="/opt/colltech-agi"
+export COLLTECH_ARCH="x86_64"
+
+# Load configuration
+if [ -f "$COLLTECH_HOME/etc/hardware.conf" ]; then
+    source "$COLLTECH_HOME/etc/hardware.conf"
+fi
+
+if [ -f "$COLLTECH_HOME/etc/performance.conf" ]; then
+    source "$COLLTECH_HOME/etc/performance.conf"
+fi
+
+# Start CollTech-AGI
+cd "$COLLTECH_HOME"
+exec python3 colltech_agi_realtime_advanced.py "$@"

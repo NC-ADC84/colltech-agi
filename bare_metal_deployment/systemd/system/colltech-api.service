@@ -1,0 +1,19 @@
+[Unit]
+Description=CollTech-AGI Real-time API Service
+After=colltech-agi.service
+Requires=colltech-agi.service
+
+[Service]
+Type=simple
+User=colltech
+Group=colltech
+WorkingDirectory=/opt/colltech-agi
+ExecStart=/opt/colltech-agi/bin/colltech-api
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=colltech-api
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,19 @@
+{
+  "runtime": "wasmtime",
+  "entry_point": "colltech_agi_realtime_advanced.py",
+  "memory": {
+    "initial": 16,
+    "maximum": 1024
+  },
+  "exports": [
+    "main",
+    "process",
+    "respond"
+  ],
+  "imports": {
+    "wasi_snapshot_preview1": {
+      "fd_write": "wasi_fd_write",
+      "proc_exit": "wasi_proc_exit"
+    }
+  }
+}

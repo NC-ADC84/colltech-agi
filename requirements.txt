@@ -1,0 +1,36 @@
+# CollTech-AGI Framework Dependencies
+
+# Core dependencies
+requests>=2.31.0
+fastapi>=0.100.0
+uvicorn>=0.23.0
+openai>=1.0.0
+
+# Real-time capabilities
+aiohttp>=3.8.0
+websockets>=11.0.0
+
+# System capabilities
+docker>=6.0.0
+psutil>=5.9.0
+
+# Data processing
+numpy>=1.24.0
+pandas>=2.0.0
+
+# Optional: Discord integration
+discord.py>=2.0.0
+
+# Optional: Advanced AI features
+torch>=2.0.0
+transformers>=4.30.0
+
+# Optional: Web development
+jinja2>=3.1.0
+python-multipart>=0.0.6
+
+# Development dependencies (optional)
+pytest>=7.0.0
+black>=23.0.0
+flake8>=6.0.0
+mypy>=1.0.0

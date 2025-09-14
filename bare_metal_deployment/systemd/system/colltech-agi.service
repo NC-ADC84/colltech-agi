@@ -1,0 +1,31 @@
+[Unit]
+Description=CollTech-AGI Advanced Consciousness System
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=colltech
+Group=colltech
+WorkingDirectory=/opt/colltech-agi
+ExecStart=/opt/colltech-agi/bin/colltech-agi
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=colltech-agi
+
+# Security settings
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/colltech-agi/var
+
+# Resource limits
+LimitNOFILE=65536
+LimitNPROC=4096
+
+[Install]
+WantedBy=multi-user.target
