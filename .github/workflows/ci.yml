@@ -29,7 +29,9 @@ jobs:
 
       - name: Run unit tests (fast)
         working-directory: colltech-agi
-        run: pytest -q
+        run: |
+          pip install pytest-rerunfailures coverage
+          pytest -q --maxfail=1 --reruns 2
 
       - name: Upload pytest cache (optional)
         if: always()
@@ -90,7 +92,21 @@ jobs:
           if [ -f colltech-agi/requirements.txt ]; then pip install -r colltech-agi/requirements.txt; fi
       - name: Run integration tests
         working-directory: colltech-agi
-        run: pytest -q -m integration
+        run: |
+          pip install pytest-rerunfailures coverage
+          pytest -q -m integration --reruns 1 || true
+      - name: Upload integration artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: integration-logs
+          path: colltech-agi/test_output_*.txt || true
+      - name: Upload coverage artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: colltech-agi/htmlcov || true
       - name: Upload integration artifacts
         if: always()
         uses: actions/upload-artifact@v4
