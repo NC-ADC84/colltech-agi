@@ -43,10 +43,12 @@ jobs:
 
       - name: Upload to Codecov (optional)
         if: secrets.CODECOV_TOKEN != ''
-        working-directory: colltech-agi
-        run: |
-          curl -s https://codecov.io/bash > codecov_uploader.sh
-          bash codecov_uploader.sh -t "${{ secrets.CODECOV_TOKEN }}"
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: coverage.xml
+          flags: unittests
+          fail_ci_if_error: false
 
       - name: Upload pytest cache (optional)
         if: always()
