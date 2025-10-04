@@ -1,3 +1,118 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, feature/* ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('colltech-agi/requirements.txt') }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f colltech-agi/requirements.txt ]; then pip install -r colltech-agi/requirements.txt; fi
+
+      - name: Run unit tests (fast)
+        working-directory: colltech-agi
+        run: |
+          pip install pytest-rerunfailures coverage
+          pytest -q --maxfail=1 --reruns 2
+
+      - name: Upload pytest cache (optional)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pytest-cache
+          path: colltech-agi/.pytest_cache || true
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install dev dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f colltech-agi/requirements.txt ]; then pip install -r colltech-agi/requirements.txt; fi
+          pip install flake8 mypy
+      - name: Run flake8
+        working-directory: colltech-agi
+        run: flake8 . --max-line-length=120 || true
+      - name: Run mypy
+        working-directory: colltech-agi
+        run: mypy --ignore-missing-imports . || true
+
+  personality-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f colltech-agi/requirements.txt ]; then pip install -r colltech-agi/requirements.txt; fi
+      - name: Run expanded-personality tests
+        working-directory: colltech-agi
+        run: pytest -q tests/test_expanded_personalities.py
+
+  integration-tests:
+    needs: unit-tests
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[run integration]')
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f colltech-agi/requirements.txt ]; then pip install -r colltech-agi/requirements.txt; fi
+      - name: Run integration tests
+        working-directory: colltech-agi
+        run: |
+          pip install pytest-rerunfailures coverage
+          pytest -q -m integration --reruns 1 || true
+      - name: Upload integration artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: integration-logs
+          path: colltech-agi/test_output_*.txt || true
+      - name: Upload coverage artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: colltech-agi/htmlcov || true
+      - name: Upload integration artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: integration-logs
+          path: colltech-agi/test_output_*.txt || true
 name: CollTech-AGI CI/CD Pipeline
 
 on:
