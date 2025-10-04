@@ -27,11 +27,26 @@ jobs:
           python -m pip install --upgrade pip
           if [ -f colltech-agi/requirements.txt ]; then pip install -r colltech-agi/requirements.txt; fi
 
-      - name: Run unit tests (fast)
+      - name: Run unit tests (fast) with coverage
         working-directory: colltech-agi
         run: |
           pip install pytest-rerunfailures coverage
-          pytest -q --maxfail=1 --reruns 2
+          coverage run -m pytest -q --maxfail=1 --reruns 2
+          coverage xml -i
+
+      - name: Upload coverage artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-xml
+          path: colltech-agi/coverage.xml || true
+
+      - name: Upload to Codecov (optional)
+        if: secrets.CODECOV_TOKEN != ''
+        working-directory: colltech-agi
+        run: |
+          curl -s https://codecov.io/bash > codecov_uploader.sh
+          bash codecov_uploader.sh -t "${{ secrets.CODECOV_TOKEN }}"
 
       - name: Upload pytest cache (optional)
         if: always()
@@ -79,7 +94,11 @@ jobs:
   integration-tests:
     needs: unit-tests
     runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[run integration]')
+    # Run on manual dispatch, on explicit commit flag, or when a PR is labeled 'run-integration'
+    if: >-
+      github.event_name == 'workflow_dispatch'
+      || contains(github.event.head_commit.message, '[run integration]')
+      || (github.event_name == 'pull_request' && github.event.action == 'labeled' && github.event.label.name == 'run-integration')
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python
