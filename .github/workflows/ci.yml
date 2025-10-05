@@ -30,9 +30,8 @@ jobs:
       - name: Run unit tests (fast) with coverage
         working-directory: colltech-agi
         run: |
-          pip install pytest-rerunfailures coverage
-          coverage run -m pytest -q --maxfail=1 --reruns 2
-          coverage xml -i
+          pip install pytest-rerunfailures pytest-cov
+          pytest --cov=. --cov-report=xml:coverage.xml -q --maxfail=1 --reruns 2
 
       - name: Upload coverage artifact
         if: always()
@@ -41,35 +40,6 @@ jobs:
           name: coverage-xml
           path: coverage.xml || true
 
-      - name: Diagnostic: list workspace and find coverage files
-        run: |
-          echo "--- pwd ---"
-          pwd
-          echo "--- list top-level ---"
-          ls -la || true
-          echo "--- find coverage.xml files ---"
-          if command -v bash >/dev/null 2>&1; then
-            bash -lc 'find . -type f -name "coverage.xml" -print || true'
-          else
-            Get-ChildItem -Recurse -Filter coverage.xml -ErrorAction SilentlyContinue | ForEach-Object FullName
-          fi
-
-      - name: Save diagnostic output and upload as artifact
-        if: ${{ always() }}
-        run: |
-          echo "Finding coverage.xml files and saving to diagnostic-coverage-files.txt"
-          if command -v bash >/dev/null 2>&1; then
-            bash -lc 'find . -type f -name "coverage.xml" -print > diagnostic-coverage-files.txt || true'
-          else
-            "$(Get-ChildItem -Recurse -Filter coverage.xml -ErrorAction SilentlyContinue | ForEach-Object FullName)`n" | Out-File diagnostic-coverage-files.txt -Encoding utf8
-          fi
-      - name: Upload diagnostic artifact
-        if: ${{ always() }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: diagnostic-coverage-files
-          path: diagnostic-coverage-files.txt
-
       - name: Upload to Codecov (optional)
         if: secrets.CODECOV_TOKEN != ''
         uses: codecov/codecov-action@v4
@@ -77,9 +47,6 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: |
             coverage.xml
-            colltech-agi/coverage.xml
-            colltech-agi/coverage/**/*.xml
-            coverage/coverage.xml
             coverage/**/*.xml
             coverage/**/coverage-*.xml
           flags: unittests
@@ -171,25 +138,4 @@ jobs:
           path: colltech-agi/test_output_*.txt || true
  # Single CI pipeline for colltech-agi
 
-  diagnostic-collector:
-    needs: unit-tests
-    if: ${{ always() }}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
-      - name: Gather coverage.xml locations
-        run: |
-          echo "Finding coverage.xml files and saving to diagnostic-coverage-files.txt"
-          if command -v bash >/dev/null 2>&1; then
-            bash -lc 'find . -type f -name "coverage.xml" -print > diagnostic-coverage-files.txt || true'
-          else
-            "$(Get-ChildItem -Recurse -Filter coverage.xml -ErrorAction SilentlyContinue | ForEach-Object FullName)`n" | Out-File diagnostic-coverage-files.txt -Encoding utf8
-      - name: Upload diagnostic artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: diagnostic-coverage-files
-          path: diagnostic-coverage-files.txt
+  # diagnostic-collector removed — diagnostics cleaned up
