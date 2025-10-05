@@ -170,3 +170,26 @@ jobs:
           name: integration-logs
           path: colltech-agi/test_output_*.txt || true
  # Single CI pipeline for colltech-agi
+
+  diagnostic-collector:
+    needs: unit-tests
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Gather coverage.xml locations
+        run: |
+          echo "Finding coverage.xml files and saving to diagnostic-coverage-files.txt"
+          if command -v bash >/dev/null 2>&1; then
+            bash -lc 'find . -type f -name "coverage.xml" -print > diagnostic-coverage-files.txt || true'
+          else
+            "$(Get-ChildItem -Recurse -Filter coverage.xml -ErrorAction SilentlyContinue | ForEach-Object FullName)`n" | Out-File diagnostic-coverage-files.txt -Encoding utf8
+      - name: Upload diagnostic artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: diagnostic-coverage-files
+          path: diagnostic-coverage-files.txt
