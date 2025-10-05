@@ -48,6 +48,8 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: |
             coverage.xml
+            colltech-agi/coverage.xml
+            colltech-agi/coverage/**/*.xml
             coverage/coverage.xml
             coverage/**/*.xml
             coverage/**/coverage-*.xml
