@@ -1,6 +1,8 @@
 # CollTech-AGI v20.7
 
-[![Unit Tests](https://github.com/NC-ADC84/colltech-agi/actions/workflows/ci.yml/badge.svg)](https://github.com/NC-ADC84/colltech-agi/actions/workflows/ci.yml) [![Codecov](https://codecov.io/gh/NC-ADC84/colltech-agi/branch/feature/codecov-badge/graph/badge.svg)](https://codecov.io/gh/NC-ADC84/colltech-agi)
+[![Unit Tests](https://github.com/NC-ADC84/colltech-agi/actions/workflows/ci.yml/badge.svg)](https://github.com/NC-ADC84/colltech-agi/actions/workflows/ci.yml)
+[![Codecov](https://codecov.io/gh/NC-ADC84/colltech-agi/branch/main/graph/badge.svg)](https://codecov.io/gh/NC-ADC84/colltech-agi)
+[![coverage](https://img.shields.io/codecov/c/github/NC-ADC84/colltech-agi?branch=main&logo=codecov)](https://codecov.io/gh/NC-ADC84/colltech-agi)
 
 
 ## Consciousness-Based AGI with Catch System Integration
