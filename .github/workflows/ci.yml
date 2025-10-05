@@ -41,6 +41,19 @@ jobs:
           name: coverage-xml
           path: colltech-agi/coverage.xml || true
 
+      - name: Diagnostic: list workspace and find coverage files
+        run: |
+          echo "--- pwd ---"
+          pwd
+          echo "--- list top-level ---"
+          ls -la || true
+          echo "--- find coverage.xml files ---"
+          if command -v bash >/dev/null 2>&1; then
+            bash -lc 'find . -type f -name "coverage.xml" -print || true'
+          else
+            Get-ChildItem -Recurse -Filter coverage.xml -ErrorAction SilentlyContinue | ForEach-Object FullName
+          fi
+
       - name: Upload to Codecov (optional)
         if: secrets.CODECOV_TOKEN != ''
         uses: codecov/codecov-action@v4
