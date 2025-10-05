@@ -1,0 +1,11 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "whisperline_extracted"
+version = "0.0.0"
+description = "Local vendored shim of whisperline_extracted (vendor copy)."
+authors = [ { name = "Vendored", email = "you@example.com" } ]
+readme = "VENDOR_README.md"
+requires-python = ">=3.8"

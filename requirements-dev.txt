@@ -1,0 +1,23 @@
+# Development dependencies to help editors, linters, and CI reproduce the dev environment
+# Install with: pip install -r requirements-dev.txt
+
+pytest>=7.4,<8.0
+pytest-asyncio>=0.21.0
+pytest-cov>=4.1.0
+numpy>=1.26.0,<2.0
+
+# Optional utilities you may want while editing
+# black==24.1.0
+# isort==6.0.0
+# mypy==1.9.0
+
+# Whisperline (local/manual install)
+# The upstream repository at https://github.com/pottersblack/whisperline_extracted
+# does not include a packaging manifest (setup.py / pyproject.toml). Install it
+# locally by cloning and adding the path to your PYTHONPATH or by running:
+#   pip install -e /path/to/whisperline_extracted
+# or inside this repo's venv (from project root):
+#   git clone https://github.com/pottersblack/whisperline_extracted.git /tmp/whisperline_extracted
+#   pip install -e /tmp/whisperline_extracted
+# We include this here as guidance rather than a direct pip URL because the
+# repo isn't pip-installable as-is.

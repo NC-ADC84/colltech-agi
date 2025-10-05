@@ -282,8 +282,16 @@ class ExpandedPersonalitySystem:
         is_how = any(word in prompt_lower for word in ['how', 'explain', 'describe'])
         is_why = any(word in prompt_lower for word in ['why', 'reason', 'because'])
         is_can = any(word in prompt_lower for word in ['can you', 'could you', 'are you able', 'can i', 'could i'])
-        is_do = any(word in prompt_lower for word in ['do you', 'does it', 'did you', 'have you'])
-        is_capability = any(word in prompt_lower for word in ['access', 'search', 'find', 'read', 'write', 'help me'])
+        is_do = any(word in prompt_lower for word in ['do you', 'does it', 'did you', 'have you', 'does this'])
+        is_capability = any(word in prompt_lower for word in ['access', 'search', 'find', 'read', 'write', 'help me', 'help with', 'need', 'capabilities', 'capability'])
+        is_file_related = any(word in prompt_lower for word in ['file', 'document', 'folder', 'directory', 'drive'])
+        
+        # Check if asking about capabilities/abilities
+        is_asking_capabilities = (
+            ('what' in prompt_lower and ('capabilities' in prompt_lower or 'capability' in prompt_lower)) or
+            ('what' in prompt_lower and ('abilities' in prompt_lower or 'ability' in prompt_lower)) or
+            ('tell me' in prompt_lower and 'about' in prompt_lower)
+        )
         
         # Generate personality-specific response
         responses = {
@@ -417,7 +425,13 @@ class ExpandedPersonalitySystem:
             return f"📜 Reviewing '{prompt}' for compliance: I've mapped this to applicable regulations and identified key standards requirements. All aspects must adhere to documented procedures and regulatory guidelines for proper compliance."
     
     def _intuitor_response(self, prompt, is_what, is_how, is_why, is_can, is_do, is_capability):
-        if "what can you" in prompt.lower() or "what do you" in prompt.lower() or is_can or (is_do and is_capability):
+        # Enhanced detection for capability questions
+        is_asking_capabilities = (
+            ('what' in prompt.lower() and ('capabilities' in prompt.lower() or 'capability' in prompt.lower())) or
+            ('what' in prompt.lower() and ('abilities' in prompt.lower() or 'ability' in prompt.lower()))
+        )
+        
+        if "what can you" in prompt.lower() or "what do you" in prompt.lower() or is_can or (is_do and is_capability) or is_asking_capabilities:
             return (
                 "👁️ As Intuitor, Security Analyst, I can help you with:\n\n"
                 "• Threat modeling and risk assessment\n"
@@ -440,7 +454,18 @@ class ExpandedPersonalitySystem:
             return f"👁️ Security analysis of '{prompt}': I detect potential risks including: unauthorized access vectors, data exposure points, system vulnerabilities, and threat scenarios. Recommended countermeasures: enhanced authentication, encryption, monitoring, and access controls."
     
     def _archiva_response(self, prompt, is_what, is_how, is_why, is_can, is_do, is_capability):
-        if "what can you" in prompt.lower() or "what do you" in prompt.lower() or is_can or (is_do and is_capability):
+        # Enhanced detection for ARCHIVA - catch more capability questions
+        is_capability_question = (
+            "what can you" in prompt.lower() or 
+            "what do you" in prompt.lower() or 
+            is_can or 
+            (is_do and is_capability) or
+            ("does" in prompt.lower() and ("support" in prompt.lower() or "work" in prompt.lower())) or
+            ("need" in prompt.lower() and is_capability) or
+            ("help" in prompt.lower() and ("find" in prompt.lower() or "document" in prompt.lower()))
+        )
+        
+        if is_capability_question:
             return (
                 "🧠 As Archiva, Memory Keeper, I can help you with:\n\n"
                 "• Pattern recognition and analysis\n"

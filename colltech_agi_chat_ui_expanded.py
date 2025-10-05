@@ -61,6 +61,14 @@ class CollTechAGIChatUIExpanded:
         try:
             from colltech_agi_settings import load_settings, save_settings
             self._settings = load_settings(os.getcwd()) or {}
+            # Apply persisted default personality if present
+            dp = self._settings.get('default_personality')
+            if dp:
+                try:
+                    self.current_personality = ExpandedPersonality(dp)
+                except Exception:
+                    # ignore invalid values
+                    pass
         except Exception:
             self._settings = {}
         

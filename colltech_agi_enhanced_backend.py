@@ -100,6 +100,8 @@ class LLMIntegration:
         """Generate response using LLM API"""
         
         if not self.api_key and self.provider != "local":
+            # No API key configured for remote provider: return a simulated response and log reason
+            logger.warning("LLMIntegration: no API key for provider '%s' - returning simulated response (personality=%s)", self.provider, personality)
             return {
                 "response": f"[{personality.upper()}] {self._get_simulated_response(prompt, personality)}",
                 "metadata": {"source": "simulated", "reason": "no_api_key"}
@@ -116,9 +118,14 @@ class LLMIntegration:
                 raise ValueError(f"Unknown provider: {self.provider}")
                 
         except Exception as e:
-            logger.error(f"LLM API error: {e}")
+            # Log the exception and return a simulated fallback response so callers can continue working
+            logger.exception("LLM API error for provider '%s': %s", self.provider, e)
+            # Provide an explicit error-bearing response so callers can detect API failures deterministically
             return {
+                "success": False,
                 "response": f"[{personality.upper()}] {self._get_simulated_response(prompt, personality)}",
+                "error": str(e),
+                "error_code": "llm_api_error",
                 "metadata": {"source": "simulated", "reason": "api_error", "error": str(e)}
             }
     
@@ -373,16 +380,34 @@ class FileSystemAccess:
     """Secure file system access"""
     
     def __init__(self, allowed_directories: Optional[List[str]] = None):
-        self.allowed_directories = allowed_directories or [
+        # Default allowed dirs: user Documents/Desktop/Downloads plus the drive root
+        default_allowed = [
             str(Path.home() / "Documents"),
             str(Path.home() / "Desktop"),
             str(Path.home() / "Downloads")
         ]
+
+        try:
+            # Add the drive root where this file lives (e.g., 'C:\') so repo/workspace paths are accessible
+            drive_root = Path(__file__).resolve().anchor
+            if drive_root and drive_root not in default_allowed:
+                default_allowed.append(drive_root)
+        except Exception:
+            # best-effort; ignore failures
+            pass
+
+        self.allowed_directories = allowed_directories or default_allowed
+
+        # Opt-in override to allow all directories (useful for trusted local setups). Set env var to '1' or 'true'.
+        allow_all_env = os.getenv('COLLTECH_ALLOW_ALL_DRIVES', '')
+        self.allow_all_directories = str(allow_all_env).lower() in ('1', 'true', 'yes')
         self.max_file_size = 10 * 1024 * 1024  # 10MB
         
     def is_path_allowed(self, path: str) -> bool:
         """Check if path is within allowed directories"""
         try:
+            if getattr(self, 'allow_all_directories', False):
+                return True
             abs_path = Path(path).resolve()
             return any(
                 str(abs_path).startswith(str(Path(allowed_dir).resolve()))
@@ -395,14 +420,14 @@ class FileSystemAccess:
         """Read file contents"""
         try:
             if not self.is_path_allowed(filepath):
-                return {"error": "Access denied - path not in allowed directories", "path": filepath}
+                return {"success": False, "error": "Access denied - path not in allowed directories", "path": filepath}
             
             path = Path(filepath)
             if not path.exists():
-                return {"error": "File not found", "path": filepath}
+                return {"success": False, "error": "File not found", "path": filepath}
             
             if path.stat().st_size > self.max_file_size:
-                return {"error": f"File too large (max {self.max_file_size} bytes)", "path": filepath}
+                return {"success": False, "error": f"File too large (max {self.max_file_size} bytes)", "path": filepath}
             
             # Read based on file type
             if path.suffix in ['.txt', '.md', '.py', '.json', '.csv', '.html', '.css', '.js']:
@@ -426,13 +451,13 @@ class FileSystemAccess:
                 
         except Exception as e:
             logger.error(f"File read error: {e}")
-            return {"error": str(e), "path": filepath}
+            return {"success": False, "error": str(e), "path": filepath}
     
     def write_file(self, filepath: str, content: str, mode: str = "w") -> Dict[str, Any]:
         """Write content to file"""
         try:
             if not self.is_path_allowed(filepath):
-                return {"error": "Access denied - path not in allowed directories", "path": filepath}
+                return {"success": False, "error": "Access denied - path not in allowed directories", "path": filepath}
             
             path = Path(filepath)
             
@@ -457,20 +482,20 @@ class FileSystemAccess:
             
         except Exception as e:
             logger.error(f"File write error: {e}")
-            return {"error": str(e), "path": filepath}
+            return {"success": False, "error": str(e), "path": filepath}
     
     def list_directory(self, dirpath: str) -> Dict[str, Any]:
         """List directory contents"""
         try:
             if not self.is_path_allowed(dirpath):
-                return {"error": "Access denied - path not in allowed directories", "path": dirpath}
+                return {"success": False, "error": "Access denied - path not in allowed directories", "path": dirpath}
             
             path = Path(dirpath)
             if not path.exists():
-                return {"error": "Directory not found", "path": dirpath}
+                return {"success": False, "error": "Directory not found", "path": dirpath}
             
             if not path.is_dir():
-                return {"error": "Path is not a directory", "path": dirpath}
+                return {"success": False, "error": "Path is not a directory", "path": dirpath}
             
             items = []
             for item in path.iterdir():
@@ -490,20 +515,20 @@ class FileSystemAccess:
             
         except Exception as e:
             logger.error(f"Directory list error: {e}")
-            return {"error": str(e), "path": dirpath}
+            return {"success": False, "error": str(e), "path": dirpath}
     
     def delete_file(self, filepath: str) -> Dict[str, Any]:
         """Delete file (with confirmation)"""
         try:
             if not self.is_path_allowed(filepath):
-                return {"error": "Access denied - path not in allowed directories", "path": filepath}
+                return {"success": False, "error": "Access denied - path not in allowed directories", "path": filepath}
             
             path = Path(filepath)
             if not path.exists():
-                return {"error": "File not found", "path": filepath}
+                return {"success": False, "error": "File not found", "path": filepath}
             
             if path.is_dir():
-                return {"error": "Cannot delete directory (use delete_directory)", "path": filepath}
+                return {"success": False, "error": "Cannot delete directory (use delete_directory)", "path": filepath}
             
             path.unlink()
             
@@ -515,7 +540,7 @@ class FileSystemAccess:
             
         except Exception as e:
             logger.error(f"File delete error: {e}")
-            return {"error": str(e), "path": filepath}
+            return {"success": False, "error": str(e), "path": filepath}
 
 
 class EnhancedBackend:
@@ -583,6 +608,12 @@ class EnhancedBackend:
         
         # Regular message - use LLM
         response = self.llm.generate_response(message, personality, mode, **kwargs)
+        # Expose metadata in logs to help debug source of responses (simulated vs api)
+        try:
+            logger.info("process_message: response source=%s, reason=%s", response.get('metadata', {}).get('source'), response.get('metadata', {}).get('reason'))
+        except Exception:
+            logger.debug("process_message: response metadata unavailable: %r", response)
+
         return {
             "type": "chat_response",
             **response
