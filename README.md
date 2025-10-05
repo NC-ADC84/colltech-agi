@@ -1,8 +1,7 @@
 # CollTech-AGI v20.7
 
-[![Unit Tests](https://github.com/NC-ADC84/colltech-agi/actions/workflows/ci.yml/badge.svg)](https://github.com/NC-ADC84/colltech-agi/actions/workflows/ci.yml) [![Codecov](https://img.shields.io/badge/coverage-unknown-lightgrey.svg)](https://codecov.io/gh/NC-ADC84/colltech-agi)
+[![Unit Tests](https://github.com/NC-ADC84/colltech-agi/actions/workflows/ci.yml/badge.svg)](https://github.com/NC-ADC84/colltech-agi/actions/workflows/ci.yml) [![Codecov](https://codecov.io/gh/NC-ADC84/colltech-agi/branch/feature/codecov-badge/graph/badge.svg)](https://codecov.io/gh/NC-ADC84/colltech-agi)
 
-<!-- NOTE: Once the first Codecov upload completes I will open a follow-up PR to replace the Codecov badge URL with the exact repository slug so the badge reports live coverage. -->
 
 ## Consciousness-Based AGI with Catch System Integration
 
