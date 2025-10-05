@@ -39,7 +39,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: coverage-xml
-          path: colltech-agi/coverage.xml || true
+          path: coverage.xml || true
 
       - name: Diagnostic: list workspace and find coverage files
         run: |
@@ -90,7 +90,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: pytest-cache
-          path: colltech-agi/.pytest_cache || true
+          path: .pytest_cache || true
 
   lint:
     runs-on: ubuntu-latest
