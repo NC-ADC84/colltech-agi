@@ -38,13 +38,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: coverage-xml
-          path: coverage.xml || true
-
       - name: Upload to Codecov (optional)
-        if: secrets.CODECOV_TOKEN != ''
         uses: codecov/codecov-action@v4
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
           files: |
             coverage.xml
             coverage/**/*.xml
@@ -52,7 +48,7 @@ jobs:
           flags: unittests
           fail_ci_if_error: false
 
-      - name: Upload pytest cache (optional)
+      - name: Upload pytest-cache artifact
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -102,7 +98,7 @@ jobs:
     if: >-
       github.event_name == 'workflow_dispatch'
       || contains(github.event.head_commit.message, '[run integration]')
-      || (github.event_name == 'pull_request' && github.event.action == 'labeled' && github.event.label.name == 'run-integration')
+      || (github.event_name == 'pull_request' && github.event.action == 'labeled' && contains(toJSON(github.event), '"name":"run-integration"'))
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python

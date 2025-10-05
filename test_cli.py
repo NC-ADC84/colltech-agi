@@ -7,7 +7,23 @@ import subprocess
 import json
 import os
 import sys
-import pytest
+import importlib
+
+try:
+    # Import pytest at runtime to avoid static "module not found" errors in editors/linters
+    pytest = importlib.import_module("pytest")
+except Exception:
+    class _PytestShim:
+        @staticmethod
+        def skip(msg=""):
+            # No-op skip to allow running tests as a script when pytest isn't installed
+            return None
+        class mark:
+            @staticmethod
+            def integration(func):
+                # Decorator passthrough for @pytest.mark.integration
+                return func
+    pytest = _PytestShim()
 
 def run_command(cmd):
     """Run a command and return output"""
@@ -20,6 +36,7 @@ def run_command(cmd):
     )
     return result.returncode, result.stdout, result.stderr
 
+@pytest.mark.integration
 def test_cli():
     """Run comprehensive CLI tests"""
     print("="*70)

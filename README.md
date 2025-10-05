@@ -287,3 +287,31 @@ MIT License - See [LICENSE](LICENSE) file.
 *The LLM is just a core spark* ⚡  
 *Intelligence is in the surrounding mesh* 🕸️  
 *Powered by Sovereign Stack Technology* 🔧
+
+## 📁 File Operations & Self‑Heal (Added in v3.0.1)
+
+This repository includes a secure, opt-in local file-operations integration and a conservative self-heal diagnostics toolset.
+
+- Runtime UI toggle: a checkbox in the Personality control panel lets you opt into full-drive access at runtime. This sets the backend flag `allow_all_directories = True`. Use only on trusted machines.
+- Natural-language file commands: the UI now recognizes phrases like "search", "find", "list files", and converts them to backend commands (`/list`, `/read`, `/search`).
+- Self‑Heal manager: a non-destructive diagnostics and repair utility (`colltech_agi_self_heal.py`) that runs import checks, backend sanity checks, and conservative repairs. It can save a JSON diagnostics report to the workspace (filename `colltech_diagnostics_<timestamp>.json`).
+
+How to use the new features:
+
+1. Start the UI and select the ARCHIVA personality for file-oriented interactions.
+2. Ask natural-language queries like:
+	- "Search C:\\Users\\Andre\\OneDrive - Andre Collier\\Shared\\shared for md files"
+	- "List files in C:\\path\\to\\directory"
+3. To enable full-drive access during a session, toggle the "Allow full-drive access" checkbox in the Personality control panel and confirm the prompt.
+4. Run Self‑Heal from the UI to produce a short summary in the chat. Use "Save Diagnostics" to persist a JSON report to the workspace.
+
+Security & Scope:
+
+- By default the backend restricts file access to Documents/Desktop/Downloads and workspace-root anchors. There is an environment opt-in `COLLTECH_ALLOW_ALL_DRIVES` (set to '1'/'true') to allow all drives at backend initialization.
+- The runtime UI toggle only affects the in-memory backend instance for the running session.
+- Self‑Heal performs non-destructive checks and conservative repairs only; it will not modify user data.
+
+Changelog note:
+
+- v3.0.1 — File Operations Integrated: Natural-language file commands, runtime full-drive toggle, Self‑Heal diagnostics and Save Diagnostics feature.
+

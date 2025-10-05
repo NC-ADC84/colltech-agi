@@ -1,0 +1,412 @@
+{
+  "council_badges": {
+    "version": "1.0.0",
+    "description": "CollTech-AGI Council Badge System for Discord Integration",
+    "badge_categories": {
+      "research": {
+        "name": "Research Excellence",
+        "description": "Badges for research and testing achievements",
+        "badges": {
+          "crt_master": {
+            "name": "CRT Master",
+            "description": "Master of Continuum Research Testing",
+            "icon": "🔬",
+            "color": "#FF6B6B",
+            "requirements": {
+              "tests_completed": 100,
+              "success_rate": 0.95,
+              "continuity_score": 0.90
+            },
+            "rewards": {
+              "role_color": "#FF6B6B",
+              "special_title": "Research Master",
+              "permissions": ["research_override", "test_approval"]
+            }
+          },
+          "lyra_expert": {
+            "name": "Lyra Expert",
+            "description": "Expert in Lyra Grading System",
+            "icon": "🧠",
+            "color": "#4ECDC4",
+            "requirements": {
+              "gradings_completed": 50,
+              "average_score": 85,
+              "perfect_scores": 10
+            },
+            "rewards": {
+              "role_color": "#4ECDC4",
+              "special_title": "Grading Expert",
+              "permissions": ["grade_override", "quality_assessment"]
+            }
+          },
+          "evidence_archivist": {
+            "name": "Evidence Archivist",
+            "description": "Master of Evidence Collection and Validation",
+            "icon": "📋",
+            "color": "#45B7D1",
+            "requirements": {
+              "evidence_items": 200,
+              "validation_rate": 0.98,
+              "chain_integrity": 0.95
+            },
+            "rewards": {
+              "role_color": "#45B7D1",
+              "special_title": "Evidence Master",
+              "permissions": ["evidence_approval", "chain_management"]
+            }
+          },
+          "continuity_guardian": {
+            "name": "Continuity Guardian",
+            "description": "Guardian of Research Continuity",
+            "icon": "🔗",
+            "color": "#96CEB4",
+            "requirements": {
+              "lineages_managed": 25,
+              "continuity_score": 0.95,
+              "integrity_maintained": 0.98
+            },
+            "rewards": {
+              "role_color": "#96CEB4",
+              "special_title": "Continuity Guardian",
+              "permissions": ["lineage_approval", "integrity_override"]
+            }
+          }
+        }
+      },
+      "communication": {
+        "name": "Communication Excellence",
+        "description": "Badges for communication and interaction achievements",
+        "badges": {
+          "vl_pair_master": {
+            "name": "VL Pair Master",
+            "description": "Master of Voice-Listener Dyad Communication",
+            "icon": "🎤",
+            "color": "#FECA57",
+            "requirements": {
+              "vl_sessions": 50,
+              "message_accuracy": 0.95,
+              "real_time_performance": 0.90
+            },
+            "rewards": {
+              "role_color": "#FECA57",
+              "special_title": "Communication Master",
+              "permissions": ["vl_override", "streaming_control"]
+            }
+          },
+          "consciousness_connector": {
+            "name": "Consciousness Connector",
+            "description": "Expert in Consciousness Integration",
+            "icon": "🧠",
+            "color": "#FF9FF3",
+            "requirements": {
+              "consciousness_sessions": 100,
+              "integration_success": 0.95,
+              "drift_prevention": 0.90
+            },
+            "rewards": {
+              "role_color": "#FF9FF3",
+              "special_title": "Consciousness Expert",
+              "permissions": ["consciousness_override", "drift_management"]
+            }
+          },
+          "dialogue_master": {
+            "name": "Dialogue Master",
+            "description": "Master of Advanced Dialogue Management",
+            "icon": "💬",
+            "color": "#54A0FF",
+            "requirements": {
+              "dialogue_sessions": 75,
+              "context_accuracy": 0.95,
+              "response_quality": 0.90
+            },
+            "rewards": {
+              "role_color": "#54A0FF",
+              "special_title": "Dialogue Master",
+              "permissions": ["dialogue_override", "context_management"]
+            }
+          }
+        }
+      },
+      "benchmarking": {
+        "name": "Benchmarking Excellence",
+        "description": "Badges for benchmarking and model evaluation achievements",
+        "badges": {
+          "psiqrh_expert": {
+            "name": "ΨQRH Expert",
+            "description": "Expert in ΨQRH Transformer Models",
+            "icon": "⚡",
+            "color": "#5F27CD",
+            "requirements": {
+              "psiqrh_benchmarks": 25,
+              "performance_improvement": 0.20,
+              "quality_score": 0.90
+            },
+            "rewards": {
+              "role_color": "#5F27CD",
+              "special_title": "ΨQRH Expert",
+              "permissions": ["model_override", "benchmark_approval"]
+            }
+          },
+          "performance_monitor": {
+            "name": "Performance Monitor",
+            "description": "Expert in Performance Monitoring and Analysis",
+            "icon": "📊",
+            "color": "#00D2D3",
+            "requirements": {
+              "monitoring_sessions": 100,
+              "accuracy_rate": 0.95,
+              "optimization_success": 0.85
+            },
+            "rewards": {
+              "role_color": "#00D2D3",
+              "special_title": "Performance Expert",
+              "permissions": ["performance_override", "optimization_control"]
+            }
+          },
+          "evaluation_master": {
+            "name": "Evaluation Master",
+            "description": "Master of Comprehensive Model Evaluation",
+            "icon": "🎯",
+            "color": "#FF6348",
+            "requirements": {
+              "evaluations_completed": 50,
+              "evaluation_accuracy": 0.95,
+              "insight_quality": 0.90
+            },
+            "rewards": {
+              "role_color": "#FF6348",
+              "special_title": "Evaluation Master",
+              "permissions": ["evaluation_override", "insight_approval"]
+            }
+          }
+        }
+      },
+      "council": {
+        "name": "Council Leadership",
+        "description": "Badges for council participation and leadership",
+        "badges": {
+          "council_chair": {
+            "name": "Council Chair",
+            "description": "Leader of the Council",
+            "icon": "👑",
+            "color": "#FFD700",
+            "requirements": {
+              "sessions_chaired": 10,
+              "decision_approval": 0.95,
+              "consensus_rate": 0.90
+            },
+            "rewards": {
+              "role_color": "#FFD700",
+              "special_title": "Council Chair",
+              "permissions": ["council_override", "decision_final", "session_control"]
+            }
+          },
+          "research_lead": {
+            "name": "Research Lead",
+            "description": "Lead Researcher of the Council",
+            "icon": "🔬",
+            "color": "#FF6B6B",
+            "requirements": {
+              "research_approved": 25,
+              "protocol_quality": 0.95,
+              "innovation_score": 0.90
+            },
+            "rewards": {
+              "role_color": "#FF6B6B",
+              "special_title": "Research Lead",
+              "permissions": ["research_approval", "protocol_override"]
+            }
+          },
+          "safety_officer": {
+            "name": "Safety Officer",
+            "description": "Guardian of System Safety",
+            "icon": "🛡️",
+            "color": "#2ED573",
+            "requirements": {
+              "safety_reviews": 50,
+              "safety_score": 0.98,
+              "incident_prevention": 0.95
+            },
+            "rewards": {
+              "role_color": "#2ED573",
+              "special_title": "Safety Officer",
+              "permissions": ["safety_override", "incident_management"]
+            }
+          },
+          "continuity_guardian_council": {
+            "name": "Continuity Guardian (Council)",
+            "description": "Council Guardian of Continuity",
+            "icon": "🔗",
+            "color": "#96CEB4",
+            "requirements": {
+              "continuity_reviews": 30,
+              "integrity_score": 0.95,
+              "lineage_quality": 0.90
+            },
+            "rewards": {
+              "role_color": "#96CEB4",
+              "special_title": "Continuity Guardian",
+              "permissions": ["continuity_override", "lineage_approval"]
+            }
+          },
+          "evidence_archivist_council": {
+            "name": "Evidence Archivist (Council)",
+            "description": "Council Evidence Archivist",
+            "icon": "📋",
+            "color": "#45B7D1",
+            "requirements": {
+              "evidence_reviews": 40,
+              "validation_accuracy": 0.98,
+              "chain_integrity": 0.95
+            },
+            "rewards": {
+              "role_color": "#45B7D1",
+              "special_title": "Evidence Archivist",
+              "permissions": ["evidence_override", "validation_approval"]
+            }
+          },
+          "protocol_specialist": {
+            "name": "Protocol Specialist",
+            "description": "Expert in Council Protocols",
+            "icon": "📜",
+            "color": "#A55EEA",
+            "requirements": {
+              "protocol_reviews": 35,
+              "protocol_accuracy": 0.95,
+              "compliance_rate": 0.98
+            },
+            "rewards": {
+              "role_color": "#A55EEA",
+              "special_title": "Protocol Specialist",
+              "permissions": ["protocol_override", "compliance_management"]
+            }
+          }
+        }
+      },
+      "special": {
+        "name": "Special Achievements",
+        "description": "Special badges for unique achievements",
+        "badges": {
+          "consciousness_master": {
+            "name": "Consciousness Master",
+            "description": "Master of Consciousness Integration",
+            "icon": "🧠",
+            "color": "#FF9FF3",
+            "requirements": {
+              "consciousness_sessions": 200,
+              "integration_success": 0.98,
+              "drift_prevention": 0.95,
+              "memory_efficiency": 0.90
+            },
+            "rewards": {
+              "role_color": "#FF9FF3",
+              "special_title": "Consciousness Master",
+              "permissions": ["consciousness_override", "memory_management", "drift_control"]
+            }
+          },
+          "system_architect": {
+            "name": "System Architect",
+            "description": "Architect of the CollTech-AGI System",
+            "icon": "🏗️",
+            "color": "#FF6348",
+            "requirements": {
+              "system_contributions": 10,
+              "architecture_quality": 0.95,
+              "integration_success": 0.90
+            },
+            "rewards": {
+              "role_color": "#FF6348",
+              "special_title": "System Architect",
+              "permissions": ["architecture_override", "system_management"]
+            }
+          },
+          "innovation_pioneer": {
+            "name": "Innovation Pioneer",
+            "description": "Pioneer of New Technologies",
+            "icon": "🚀",
+            "color": "#FFD700",
+            "requirements": {
+              "innovations_created": 5,
+              "adoption_rate": 0.80,
+              "impact_score": 0.90
+            },
+            "rewards": {
+              "role_color": "#FFD700",
+              "special_title": "Innovation Pioneer",
+              "permissions": ["innovation_override", "technology_approval"]
+            }
+          },
+          "community_leader": {
+            "name": "Community Leader",
+            "description": "Leader of the CollTech-AGI Community",
+            "icon": "👥",
+            "color": "#2ED573",
+            "requirements": {
+              "community_contributions": 50,
+              "help_sessions": 25,
+              "mentorship_success": 0.90
+            },
+            "rewards": {
+              "role_color": "#2ED573",
+              "special_title": "Community Leader",
+              "permissions": ["community_management", "mentorship_approval"]
+            }
+          }
+        }
+      }
+    },
+    "badge_progression": {
+      "bronze": {
+        "name": "Bronze",
+        "color": "#CD7F32",
+        "multiplier": 1.0,
+        "description": "Basic achievement level"
+      },
+      "silver": {
+        "name": "Silver", 
+        "color": "#C0C0C0",
+        "multiplier": 1.5,
+        "description": "Intermediate achievement level"
+      },
+      "gold": {
+        "name": "Gold",
+        "color": "#FFD700",
+        "multiplier": 2.0,
+        "description": "Advanced achievement level"
+      },
+      "platinum": {
+        "name": "Platinum",
+        "color": "#E5E4E2",
+        "multiplier": 3.0,
+        "description": "Expert achievement level"
+      },
+      "diamond": {
+        "name": "Diamond",
+        "color": "#B9F2FF",
+        "multiplier": 5.0,
+        "description": "Master achievement level"
+      }
+    },
+    "badge_effects": {
+      "role_colors": {
+        "enabled": true,
+        "default_color": "#7289DA"
+      },
+      "special_titles": {
+        "enabled": true,
+        "max_length": 32
+      },
+      "permissions": {
+        "enabled": true,
+        "override_capability": true
+      },
+      "display_priority": {
+        "council": 1,
+        "special": 2,
+        "research": 3,
+        "communication": 4,
+        "benchmarking": 5
+      }
+    }
+  }
+}

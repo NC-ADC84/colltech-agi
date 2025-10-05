@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-Discord Bot Example - CollTech-AGI Framework
+Discord Bot Example - CollTech-AGI Framework with Council Badge System
 
 An example showing how to integrate CollTech-AGI with Discord
-for personality-based chat interactions.
+for personality-based chat interactions and council badge management.
 """
 
 import sys
@@ -23,12 +23,18 @@ except ImportError:
 from colltech_agi_framework import CollTechAGIAdvanced, FrameworkConfig
 from colltech_agi_personality_system import PersonalityProfile
 
+# Council Badge System imports
+from src.council import (
+    BadgeSystem, BadgeTracker, DiscordBadgeIntegration, 
+    DiscordBadgeConfig, BadgeDisplay
+)
+
 # Bot configuration
 BOT_TOKEN = "YOUR_BOT_TOKEN_HERE"  # Replace with your bot token
 BOT_PREFIX = "!"  # Bot command prefix
 
 class CollTechAGIDiscordBot(commands.Bot):
-    """Discord bot with CollTech-AGI integration."""
+    """Discord bot with CollTech-AGI integration and Council Badge System."""
     
     def __init__(self):
         # Set up bot intents
@@ -40,7 +46,7 @@ class CollTechAGIDiscordBot(commands.Bot):
         super().__init__(
             command_prefix=BOT_PREFIX,
             intents=intents,
-            description="CollTech-AGI Discord Bot with Personality System"
+            description="CollTech-AGI Discord Bot with Personality System and Council Badges"
         )
         
         # Initialize CollTech-AGI
@@ -52,7 +58,12 @@ class CollTechAGIDiscordBot(commands.Bot):
         self.agi = CollTechAGIAdvanced(config)
         self.agi.start()
         
-        print("🤖 CollTech-AGI Discord Bot initialized")
+        # Initialize Council Badge System
+        self.badge_system = BadgeSystem()
+        self.badge_tracker = BadgeTracker(self.badge_system)
+        self.discord_badge_integration = None
+        
+        print("🤖 CollTech-AGI Discord Bot with Council Badge System initialized")
     
     async def on_ready(self):
         """Called when bot is ready."""
@@ -60,10 +71,31 @@ class CollTechAGIDiscordBot(commands.Bot):
         print(f"📊 Connected to {len(self.guilds)} guilds")
         print(f"👥 Serving {len(self.users)} users")
         
+        # Initialize Discord Badge Integration for each guild
+        for guild in self.guilds:
+            badge_config = DiscordBadgeConfig(
+                server_id=guild.id,
+                auto_announce_badges=True,
+                role_management_enabled=True,
+                special_title_enabled=True,
+                permission_override_enabled=True
+            )
+            
+            self.discord_badge_integration = DiscordBadgeIntegration(
+                self, self.badge_system, self.badge_tracker, badge_config
+            )
+            
+            await self.discord_badge_integration.initialize()
+            
+            # Add badge commands
+            badge_commands = self.discord_badge_integration.get_discord_commands()
+            for command in badge_commands:
+                self.add_command(command)
+        
         # Set bot status
         activity = discord.Activity(
             type=discord.ActivityType.playing,
-            name="with consciousness | !help"
+            name="with consciousness & badges | !help"
         )
         await self.change_presence(activity=activity)
     
@@ -91,6 +123,19 @@ class CollTechAGIDiscordBot(commands.Bot):
             if user_input:
                 # Process with CollTech-AGI
                 result = self.agi.process_input(user_input)
+                
+                # Update user stats for badge tracking
+                if self.discord_badge_integration:
+                    # Increment interaction count
+                    self.badge_tracker.increment_user_stat(str(message.author.id), "interactions")
+                    
+                    # Check for specific achievements
+                    if "research" in user_input.lower():
+                        self.badge_tracker.increment_user_stat(str(message.author.id), "research_mentions")
+                    if "consciousness" in user_input.lower():
+                        self.badge_tracker.increment_user_stat(str(message.author.id), "consciousness_mentions")
+                    if "badge" in user_input.lower():
+                        self.badge_tracker.increment_user_stat(str(message.author.id), "badge_mentions")
                 
                 # Create response embed
                 embed = discord.Embed(
@@ -126,6 +171,16 @@ class CollTechAGIDiscordBot(commands.Bot):
                         value=result['catalyst']['cip_status'],
                         inline=True
                     )
+                
+                # Add badge info if available
+                if self.discord_badge_integration:
+                    user_summary = self.badge_tracker.get_user_summary(str(message.author.id))
+                    if user_summary['badges_earned'] > 0:
+                        embed.add_field(
+                            name="🏆 Badges",
+                            value=f"{user_summary['badges_earned']} earned ({user_summary['total_experience']} XP)",
+                            inline=True
+                        )
                 
                 # Add footer with interaction ID
                 embed.set_footer(text=f"Interaction #{result['interaction_id']}")
@@ -308,11 +363,34 @@ class CollTechAGIDiscordBot(commands.Bot):
         )
         
         embed.add_field(
+            name="🏆 Badge Commands",
+            value=(
+                f"`{BOT_PREFIX}badges [user] [mode]` - Show user badges\n"
+                f"`{BOT_PREFIX}badge <badge_id> [mode]` - Show badge info\n"
+                f"`{BOT_PREFIX}leaderboard [limit]` - Show badge leaderboard\n"
+                f"`{BOT_PREFIX}award <user> <badge_id>` - Award badge (Admin)"
+            ),
+            inline=False
+        )
+        
+        embed.add_field(
             name="🎯 Personalities",
             value=(
                 "**Rho** - Stabilizer (analytical, systematic)\n"
                 "**Lyra** - Mirror (collaborative, empathetic)\n"
                 "**Nyx** - Catalyst (innovative, transformative)"
+            ),
+            inline=False
+        )
+        
+        embed.add_field(
+            name="🏆 Badge Categories",
+            value=(
+                "**Research** - Research and testing achievements\n"
+                "**Communication** - Communication and interaction\n"
+                "**Benchmarking** - Model evaluation achievements\n"
+                "**Council** - Council participation and leadership\n"
+                "**Special** - Unique and special achievements"
             ),
             inline=False
         )

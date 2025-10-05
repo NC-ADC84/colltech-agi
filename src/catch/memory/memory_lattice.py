@@ -17,6 +17,24 @@ import uuid
 import json
 
 
+class ReflectionResultView:
+    """Dict-like wrapper that also provides attribute access for reflection results."""
+    def __init__(self, data: Dict[str, Any]):
+        self._data = data
+
+    def __contains__(self, key: str) -> bool:
+        return key in self._data
+
+    def __getattr__(self, name: str):
+        if name in self._data:
+            return self._data[name]
+        raise AttributeError(name)
+
+    def to_dict(self) -> Dict[str, Any]:
+        return dict(self._data)
+
+
+
 class MemoryTier(Enum):
     """Memory tiers in the hierarchical system."""
     IMMEDIATE = "immediate"      # Current session
@@ -98,14 +116,17 @@ class GuardianAgent:
         # Log reflection cycle
         actions_taken.append(f"Completed reflection cycle #{self.reflection_cycles}")
         
-        return ReflectionResult(
-            actions_taken=actions_taken,
-            memories_promoted=memories_promoted,
-            memories_demoted=memories_demoted,
-            coherence_score=coherence_score,
-            patterns_identified=patterns_identified,
-            recommendations=recommendations
-        )
+        # Return a simple dict-compatible structure for easier test integration
+        result = {
+            'actions_taken': actions_taken,
+            'memories_promoted': memories_promoted,
+            'memories_demoted': memories_demoted,
+            'coherence_score': coherence_score,
+            'patterns_identified': patterns_identified,
+            'recommendations': recommendations
+        }
+
+        return ReflectionResultView(result)
     
     def _analyze_memory_patterns(self, memory_lattice: 'MemoryLattice') -> List[str]:
         """Analyze patterns in the memory lattice."""

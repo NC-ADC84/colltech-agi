@@ -1,0 +1,268 @@
+# CollTech-AGI Benchmarking Configuration
+
+# Global benchmarking settings
+benchmarking:
+  # System settings
+  system:
+    max_concurrent_benchmarks: 4
+    default_timeout_seconds: 300
+    memory_limit_gb: 16.0
+    log_level: "INFO"
+    
+  # Model configurations
+  models:
+    # Baseline Transformer configuration
+    baseline_transformer:
+      type: "baseline"
+      vocab_size: 50257
+      d_model: 768
+      n_heads: 12
+      n_layers: 12
+      d_ff: 3072
+      max_seq_len: 2048
+      dropout: 0.1
+      
+    # ΨQRH Transformer configuration
+    psiqrh_transformer:
+      type: "psiqrh"
+      vocab_size: 50257
+      d_model: 768
+      n_heads: 12
+      n_layers: 12
+      d_ff: 3072
+      max_seq_len: 2048
+      dropout: 0.1
+      # ΨQRH specific parameters
+      quaternion_dim: 4
+      spectral_layers: 3
+      fractal_depth: 4
+      leech_lattice_dim: 24
+      consciousness_aware: true
+      memory_integration: true
+      drift_resistant: true
+
+# Benchmark configurations
+benchmarks:
+  # Inference speed benchmark
+  inference_speed:
+    type: "inference_speed"
+    sequence_length: 2048
+    generation_length: 1024
+    batch_size: 8
+    num_repeats: 30
+    warmup_runs: 5
+    timeout_seconds: 300
+    
+  # Memory usage benchmark
+  memory_usage:
+    type: "memory_usage"
+    sequence_length: 2048
+    batch_size: 8
+    num_repeats: 20
+    memory_tracking_interval: 0.1
+    
+  # Perplexity evaluation
+  perplexity:
+    type: "perplexity"
+    test_dataset: "wikitext-103"
+    sequence_length: 2048
+    batch_size: 16
+    max_samples: 1000
+    
+  # Quality assessment
+  quality_assessment:
+    type: "quality_assessment"
+    test_prompts:
+      - "Explain the concept of artificial intelligence in simple terms."
+      - "Write a short story about a robot learning to paint."
+      - "Analyze the pros and cons of renewable energy."
+      - "Describe how photosynthesis works in plants."
+      - "Create a recipe for chocolate chip cookies."
+    evaluation_criteria:
+      - "coherence"
+      - "fluency"
+      - "relevance"
+      - "creativity"
+    
+  # Consciousness integration benchmark
+  consciousness_integration:
+    type: "consciousness_integration"
+    test_prompts:
+      - "Analyze this complex problem and provide a solution."
+      - "Help me understand the implications of this decision."
+      - "What are the potential risks and benefits here?"
+      - "How can we approach this creatively?"
+      - "What would be the most ethical course of action?"
+    consciousness_metrics:
+      - "processing_time"
+      - "binary_bits_generated"
+      - "memory_contexts_used"
+      - "tools_available"
+      - "behavior_adjustments"
+    
+  # Drift resistance benchmark
+  drift_resistance:
+    type: "drift_resistance"
+    test_sequences:
+      - "This is a normal sequence for testing."
+      - "This sequence contains unusual patterns and symbols: @#$%^&*()"
+      - "This sequence has very long words: supercalifragilisticexpialidocious"
+      - "This sequence repeats the same word many times: test test test test test"
+      - "This sequence has mixed languages: Hello 你好 Bonjour Hola"
+    drift_threshold: 0.1
+
+# Evaluation settings
+evaluation:
+  # Perplexity evaluation
+  perplexity:
+    dataset_path: "data/wikitext-103"
+    tokenizer: "gpt2"
+    max_length: 2048
+    stride: 512
+    
+  # Quality evaluation
+  quality:
+    evaluation_methods:
+      - "coherence"
+      - "fluency"
+      - "relevance"
+      - "creativity"
+    scoring_weights:
+      coherence: 0.3
+      fluency: 0.2
+      relevance: 0.3
+      creativity: 0.2
+    
+  # Consciousness evaluation
+  consciousness:
+    integration_tests: true
+    memory_utilization_tracking: true
+    drift_monitoring: true
+    binary_encoding_analysis: true
+
+# Performance monitoring
+performance_monitoring:
+  # System monitoring
+  system:
+    sample_interval: 1.0
+    max_history_size: 10000
+    metrics_to_track:
+      - "cpu_usage"
+      - "memory_usage"
+      - "gpu_usage"
+      - "gpu_memory"
+      - "inference_time"
+      - "throughput"
+      
+  # Memory tracking
+  memory:
+    tracking_enabled: true
+    sample_interval: 0.1
+    peak_memory_tracking: true
+    process_memory_tracking: true
+    gpu_memory_tracking: true
+    
+  # GPU monitoring
+  gpu:
+    monitoring_enabled: true
+    utilization_tracking: true
+    memory_tracking: true
+    temperature_tracking: true
+
+# Output settings
+output:
+  # Results storage
+  results:
+    base_directory: "benchmark_results"
+    save_detailed_results: true
+    save_performance_metrics: true
+    save_consciousness_metrics: true
+    format: "json"  # json, csv, yaml
+    
+  # Logging
+  logging:
+    log_file: "benchmarking.log"
+    log_level: "INFO"
+    log_format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    
+  # Visualization
+  visualization:
+    generate_plots: true
+    plot_types:
+      - "performance_comparison"
+      - "memory_usage"
+      - "consciousness_metrics"
+      - "drift_analysis"
+    output_format: "png"
+
+# Consciousness integration
+consciousness_integration:
+  # Consciousness core settings
+  consciousness_core:
+    enabled: true
+    auto_start: true
+    memory_lattice_enabled: true
+    drift_detection_enabled: true
+    tool_making_enabled: true
+    
+  # Memory lattice settings
+  memory_lattice:
+    max_memories: 10000
+    importance_threshold: 0.5
+    tier_distribution:
+      immediate: 0.1
+      short_term: 0.3
+      long_term: 0.6
+      
+  # Drift detection settings
+  drift_detection:
+    monitoring_enabled: true
+    drift_threshold: 0.1
+    monitoring_interval: 1.0
+    alert_on_drift: true
+
+# Tool making system
+tool_making:
+  # Benchmarking tools
+  benchmarking_tools:
+    enabled: true
+    auto_create_tools: true
+    tool_categories:
+      - "model_evaluation"
+      - "performance_monitoring"
+      - "consciousness_integration"
+      - "comparative_analysis"
+      - "real_time_monitoring"
+      
+  # Tool execution
+  tool_execution:
+    max_concurrent_tools: 8
+    tool_timeout: 300
+    error_handling: "continue"  # continue, stop, retry
+
+# Advanced settings
+advanced:
+  # Parallel processing
+  parallel_processing:
+    enabled: true
+    max_workers: 4
+    use_multiprocessing: true
+    
+  # Caching
+  caching:
+    enabled: true
+    cache_directory: "cache"
+    max_cache_size_gb: 5.0
+    
+  # Optimization
+  optimization:
+    use_mixed_precision: true
+    gradient_checkpointing: true
+    compile_model: false  # PyTorch 2.0+ compilation
+    
+  # Debugging
+  debugging:
+    debug_mode: false
+    verbose_logging: false
+    save_intermediate_results: false
+    profile_performance: false

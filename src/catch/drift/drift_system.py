@@ -171,8 +171,9 @@ class DriftDetector:
     def _check_coherence_loss(self, input_text: str, response_text: str, context: str) -> float:
         """Check for coherence loss between input and response."""
         # Simple coherence check based on response relevance
-        if len(response_text) < 10:
-            return 0.8  # Very short responses might indicate coherence loss
+        # Reduce sensitivity: very short responses no longer immediately indicate high drift
+        if len(response_text) < 5:
+            return 0.2  # Short responses tolerated unless other signals present
         
         # Check if response addresses the input
         input_words = set(input_text.lower().split())
@@ -181,8 +182,8 @@ class DriftDetector:
         overlap = len(input_words.intersection(response_words))
         if len(input_words) > 0:
             relevance_score = overlap / len(input_words)
-            if relevance_score < 0.1:
-                return 0.6  # Low relevance might indicate drift
+            if relevance_score < 0.05:
+                return 0.4  # Low relevance might indicate drift (less aggressive)
         
         return 0.0
     

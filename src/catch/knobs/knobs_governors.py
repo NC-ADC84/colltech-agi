@@ -143,6 +143,8 @@ class KnobsGovernorsSystem:
                 governor_type=gov_type,
                 threshold=default_threshold,
                 default_threshold=default_threshold,
+                # Ensure max_threshold can accommodate large numeric thresholds
+                max_threshold=max(default_threshold, 1.0),
                 description=description
             )
             self.governors[gov_id] = governor
