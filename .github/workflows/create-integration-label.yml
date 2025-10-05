@@ -1,0 +1,34 @@
+name: Create integration label
+
+on:
+  workflow_dispatch:
+
+jobs:
+  create-label:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Ensure jq is available
+        run: sudo apt-get update && sudo apt-get install -y jq curl || true
+
+      - name: Create label via GitHub API
+        env:
+          GH_TOKEN: ${{ secrets.GH_ADMIN_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          LABEL_NAME='run-integration'
+          COLOR='0e8a16'
+          BODY='Apply to a PR to trigger integration tests in CI.'
+          echo "Creating label $LABEL_NAME in $REPO"
+          API_URL="https://api.github.com/repos/$REPO/labels"
+          PAYLOAD=$(jq -n --arg name "$LABEL_NAME" --arg color "$COLOR" --arg desc "$BODY" '{name:$name,color:$color,description:$desc}')
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST -H "Authorization: token $GH_TOKEN" -H "Accept: application/vnd.github.v3+json" $API_URL -d "$PAYLOAD")
+          if [ "$HTTP_STATUS" = "201" ]; then
+            echo "Label created"
+          elif [ "$HTTP_STATUS" = "422" ]; then
+            echo "Label already exists (or validation error)."
+          else
+            echo "Unexpected response: $HTTP_STATUS"
+            exit 1
+          fi
